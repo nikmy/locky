@@ -1,5 +1,4 @@
-1. Postgres storage implementation
-2. API errors handling
-3. Token from BotFather
-4. WebHook
-5. Deploy
+1. API errors handling
+2. Token from BotFather
+3. WebHook
+4. Deploy
