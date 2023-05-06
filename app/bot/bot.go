@@ -65,7 +65,12 @@ func runner(ctx context.Context, log *zap.SugaredLogger, bot *tgbotapi.BotAPI, a
 				wrongMsg(update)
 				return
 			}
-			login, password, _ := api.Get(ctx, update.Message.From.ID, args[0]) // TODO: error
+			login, password, err := api.Get(ctx, update.Message.From.ID, args[0])
+			if err != nil {
+				log.Error(storageAPIError("Get", err))
+				return
+			}
+
 			msg, err := bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, fmtCreds(login, password)))
 			if err != nil {
 				log.Errorf("cannot send msg: %s", err)
@@ -86,13 +91,21 @@ func runner(ctx context.Context, log *zap.SugaredLogger, bot *tgbotapi.BotAPI, a
 				wrongMsg(update)
 				return
 			}
-			_ = api.Set(ctx, update.Message.From.ID, args[0], args[1], args[2]) // TODO: error
+			err := api.Set(ctx, update.Message.From.ID, args[0], args[1], args[2])
+			if err != nil {
+				log.Error(storageAPIError("Set", err))
+				return
+			}
 		case "/del":
 			if len(args) != 1 {
 				wrongMsg(update)
 				return
 			}
-			_ = api.Del(ctx, update.Message.From.ID, args[0]) // TODO: error
+			err := api.Del(ctx, update.Message.From.ID, args[0])
+			if err != nil {
+				log.Error(storageAPIError("Del", err))
+				return
+			}
 		default:
 			wrongMsg(update)
 		}
@@ -101,4 +114,8 @@ func runner(ctx context.Context, log *zap.SugaredLogger, bot *tgbotapi.BotAPI, a
 
 func fmtCreds(login, password string) string {
 	return fmt.Sprintf("login: %s\npassword: %s", login, password)
+}
+
+func storageAPIError(method string, err error) error {
+	return fmt.Errorf("storage API error: %s: %w", method, err)
 }
