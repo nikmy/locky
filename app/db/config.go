@@ -10,5 +10,6 @@ type Config struct {
 
 	Host    string
 	Port    uint16
-	SSLMode bool
+	DBName  string
+	SSLMode string
 }

@@ -7,20 +7,10 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const dbName = "locky_user_data"
-
 func NewStorage(cfg Config) (*pgStorage, error) {
 	source := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		cfg.Host, cfg.Port,
-		cfg.Credentials.Username, cfg.Credentials.Password,
-		dbName,
-		func() string {
-			if cfg.SSLMode {
-				return "enable"
-			}
-			return "disable"
-		}(),
+		cfg.Host, cfg.Port, cfg.Username, cfg.Password, cfg.DBName, cfg.SSLMode,
 	)
 	db, err := sqlx.Connect("postgres", source)
 	if err != nil {
