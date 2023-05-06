@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -34,17 +35,17 @@ type pgStorage struct {
 	db *sqlx.DB
 }
 
-func (s *pgStorage) Set(userID int64, service string, login string, password string) error {
+func (s *pgStorage) Set(ctx context.Context, userID int64, service string, login string, password string) error {
 	// TODO implement me
 	panic("implement me")
 }
 
-func (s *pgStorage) Get(userID int64, service string) error {
+func (s *pgStorage) Get(ctx context.Context, userID int64, service string) error {
 	// TODO implement me
 	panic("implement me")
 }
 
-func (s *pgStorage) Del(userID int64, service string) error {
+func (s *pgStorage) Del(ctx context.Context, userID int64, service string) error {
 	// TODO implement me
 	panic("implement me")
 }

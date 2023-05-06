@@ -1,0 +1,21 @@
+version: '3.5'
+
+services:
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: test
+
+  bot:
+    build:
+      context: app
+      dockerfile: Dockerfile
+    image: result/latest
+    environment:
+      TOKEN: todo
+      HOST: localhost
+      PORT: 5432
+      USER: postgres
+      PASSWORD: postgres
+      SSLMODE: disable

@@ -1,11 +1,14 @@
 package db
 
+type Credentials struct {
+	Username string
+	Password string
+}
+
 type Config struct {
-	Host        string
-	Port        uint16
-	Credentials struct {
-		Username string
-		Password string
-	}
+	Credentials
+
+	Host    string
+	Port    uint16
 	SSLMode bool
 }

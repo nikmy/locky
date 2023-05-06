@@ -33,11 +33,11 @@ func Run(ctx context.Context, log *zap.SugaredLogger, api storage, token string)
 
 	workerpool.New[tgbotapi.Update](8).
 		WithContext(ctx).
-		WithHandler(runner(log, bot, api)).
+		WithHandler(runner(ctx, log, bot, api)).
 		Range(updates)
 }
 
-func runner(log *zap.SugaredLogger, bot *tgbotapi.BotAPI, api storage) func(update tgbotapi.Update) {
+func runner(ctx context.Context, log *zap.SugaredLogger, bot *tgbotapi.BotAPI, api storage) func(update tgbotapi.Update) {
 	wrongMsg := func(update tgbotapi.Update) {
 		_, err := bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "I don't understand :("))
 		if err != nil {
@@ -63,19 +63,19 @@ func runner(log *zap.SugaredLogger, bot *tgbotapi.BotAPI, api storage) func(upda
 				wrongMsg(update)
 				return
 			}
-			_ = api.Get(update.Message.From.ID, args[0]) // TODO: error
+			_ = api.Get(ctx, update.Message.From.ID, args[0]) // TODO: error
 		case "/set":
 			if len(args) != 3 {
 				wrongMsg(update)
 				return
 			}
-			_ = api.Set(update.Message.From.ID, args[0], args[1], args[2]) // TODO: error
+			_ = api.Set(ctx, update.Message.From.ID, args[0], args[1], args[2]) // TODO: error
 		case "/del":
 			if len(args) != 1 {
 				wrongMsg(update)
 				return
 			}
-			_ = api.Del(update.Message.From.ID, args[0]) // TODO: error
+			_ = api.Del(ctx, update.Message.From.ID, args[0]) // TODO: error
 		default:
 			wrongMsg(update)
 		}
