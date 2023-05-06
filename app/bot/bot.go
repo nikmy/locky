@@ -2,7 +2,9 @@ package bot
 
 import (
 	"context"
+	"fmt"
 	"strings"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/nikmy/locky/app/workerpool"
@@ -63,7 +65,22 @@ func runner(ctx context.Context, log *zap.SugaredLogger, bot *tgbotapi.BotAPI, a
 				wrongMsg(update)
 				return
 			}
-			_ = api.Get(ctx, update.Message.From.ID, args[0]) // TODO: error
+			login, password, _ := api.Get(ctx, update.Message.From.ID, args[0]) // TODO: error
+			msg, err := bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, fmtCreds(login, password)))
+			if err != nil {
+				log.Errorf("cannot send msg: %s", err)
+			}
+			go func() {
+				select {
+				case <-ctx.Done():
+					return
+				case <-time.After(5 * time.Minute): // TODO: timer pool
+				}
+				_, err := bot.Request(tgbotapi.NewDeleteMessage(msg.Chat.ID, msg.MessageID))
+				if err != nil {
+					log.Errorf("cannot delete sent message: %s", err)
+				}
+			}()
 		case "/set":
 			if len(args) != 3 {
 				wrongMsg(update)
@@ -80,4 +97,8 @@ func runner(ctx context.Context, log *zap.SugaredLogger, bot *tgbotapi.BotAPI, a
 			wrongMsg(update)
 		}
 	}
+}
+
+func fmtCreds(login, password string) string {
+	return fmt.Sprintf("login: %s\npassword: %s", login, password)
 }
