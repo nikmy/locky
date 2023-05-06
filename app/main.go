@@ -7,9 +7,10 @@ import (
 	"os/signal"
 	"strconv"
 
+	"go.uber.org/zap"
+
 	"github.com/nikmy/locky/app/bot"
 	"github.com/nikmy/locky/app/db"
-	"go.uber.org/zap"
 )
 
 func main() {

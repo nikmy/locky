@@ -7,8 +7,9 @@ import (
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/nikmy/locky/app/workerpool"
 	"go.uber.org/zap"
+
+	"github.com/nikmy/locky/app/workerpool"
 )
 
 const (
