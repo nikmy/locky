@@ -12,17 +12,13 @@ import (
 	"github.com/nikmy/locky/app/workerpool"
 )
 
-const (
-	webhookURL = "TODO"
-)
-
-func Run(ctx context.Context, log *zap.SugaredLogger, api storage, token string) {
+func Run(ctx context.Context, log *zap.SugaredLogger, api storage, token string, webhook string) {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Fatalf("cannot create bot API: %s", err)
 	}
 
-	wh, err := tgbotapi.NewWebhook(webhookURL + bot.Token)
+	wh, err := tgbotapi.NewWebhook(webhook)
 	if err != nil {
 		log.Fatalf("cannot init webhook: %s", err)
 	}
@@ -32,7 +28,7 @@ func Run(ctx context.Context, log *zap.SugaredLogger, api storage, token string)
 		log.Fatalf("cannot init webhook: %s", err)
 	}
 
-	updates := bot.ListenForWebhook("/" + bot.Token)
+	updates := bot.ListenForWebhook("/")
 
 	workerpool.New[tgbotapi.Update](8).
 		WithContext(ctx).

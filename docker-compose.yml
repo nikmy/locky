@@ -13,6 +13,7 @@ services:
     image: result/latest
     environment:
       TOKEN: "6256751542:AAFFCrPc6-5HVIhTPekb4LYH10qtgzPp3sY"
+      WEBHOOK: "https://TODO.ngrok.io"
       DBNAME: locky_data
       HOST: localhost
       PORT: 5432

@@ -23,7 +23,7 @@ func main() {
 	}
 
 	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
-	bot.Run(ctx, log, api, os.Getenv("TOKEN"))
+	bot.Run(ctx, log, api, os.Getenv("TOKEN"), os.Getenv("WEBHOOK"))
 }
 
 func loadConfigFromEnv() db.Config {
