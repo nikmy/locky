@@ -10,19 +10,21 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=locky_data
       - POSTGRES_PORT=5432
-#  bot:
-#    depends_on:
-#      - db
-#    build:
-#      context: app
-#      dockerfile: Dockerfile
-#    image: result/latest
-#    environment:
-#      TOKEN: "6256751542:AAFFCrPc6-5HVIhTPekb4LYH10qtgzPp3sY"
-#      WEBHOOK: "https://b57d-93-175-11-227.eu.ngrok.io"
-#      DBNAME: locky_data
-#      HOST: localhost
-#      PORT: 5432
-#      USER: postgres
-#      PASSWORD: postgres
-#      SSLMODE: disable
+  bot:
+    depends_on:
+      - db
+    build:
+      context: app
+      dockerfile: Dockerfile
+    image: result/latest
+    ports:
+      - "80:80"
+    environment:
+      TOKEN: "6256751542:AAFFCrPc6-5HVIhTPekb4LYH10qtgzPp3sY"
+      WEBHOOK: "<YOUR_WEBHOOK_URL>"
+      DBNAME: locky_data
+      HOST: localhost
+      PORT: 5432
+      USER: postgres
+      PASSWORD: postgres
+      SSLMODE: disable

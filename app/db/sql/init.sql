@@ -8,4 +8,4 @@ CREATE TABLE IF NOT EXISTS users_data
     last_update TIMESTAMP   NOT NULL DEFAULT now()
 );
 
-CREATE INDEX ON users_data (user_id);
+CREATE UNIQUE INDEX ON users_data (user_id, service);
