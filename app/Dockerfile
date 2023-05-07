@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-COPY locky_bot /var/www/locky
+COPY bot_linux /var/www/locky/locky_bot
 
 WORKDIR /var/www/locky
 

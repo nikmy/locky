@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"strconv"
 
+	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 
 	"github.com/nikmy/locky/app/bot"
@@ -17,13 +18,15 @@ func main() {
 	zlog, _ := zap.NewDevelopment()
 	log := zlog.Sugar()
 
+	log.Debug("connecting to storage...")
 	api, err := db.NewStorage(loadConfigFromEnv())
 	if err != nil {
 		log.Fatalf("cannot initialize db storage: %s", err)
 	}
+	log.Debug("storage has been successfully connected")
 
 	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
-	bot.Run(ctx, log, api, os.Getenv("TOKEN"), os.Getenv("WEBHOOK"))
+	bot.Run(ctx, log, api, os.Getenv("TOKEN"), false)
 }
 
 func loadConfigFromEnv() db.Config {

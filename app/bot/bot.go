@@ -3,6 +3,7 @@ package bot
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -12,23 +13,25 @@ import (
 	"github.com/nikmy/locky/app/workerpool"
 )
 
-func Run(ctx context.Context, log *zap.SugaredLogger, api storage, token string, webhook string) {
+func Run(ctx context.Context, log *zap.SugaredLogger, api storage, token string, webhookEnabled bool) {
+	log.Debug("launching bot...")
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Fatalf("cannot create bot API: %s", err)
 	}
+	log.Debug("successfully connected to telegram API")
 
-	wh, err := tgbotapi.NewWebhook(webhook)
-	if err != nil {
-		log.Fatalf("cannot init webhook: %s", err)
+	var updates tgbotapi.UpdatesChannel
+	if webhookEnabled {
+		updates = fromWebhook(log, bot)
+	} else {
+		_, _ = bot.Request(tgbotapi.WebhookConfig{})
+		u := tgbotapi.NewUpdate(0)
+		u.Timeout = 60
+		updates = bot.GetUpdatesChan(u)
 	}
 
-	_, err = bot.Request(wh)
-	if err != nil {
-		log.Fatalf("cannot init webhook: %s", err)
-	}
-
-	updates := bot.ListenForWebhook("/")
+	log.Debug("listen for updates...")
 
 	workerpool.New[tgbotapi.Update](8).
 		WithContext(ctx).
@@ -44,6 +47,7 @@ func runner(ctx context.Context, log *zap.SugaredLogger, bot *tgbotapi.BotAPI, a
 		}
 	}
 	return func(update tgbotapi.Update) {
+		log.Debug("update has been received!")
 		if update.Message == nil || len(update.Message.Text) == 0 {
 			wrongMsg(update)
 			return
@@ -107,6 +111,28 @@ func runner(ctx context.Context, log *zap.SugaredLogger, bot *tgbotapi.BotAPI, a
 			wrongMsg(update)
 		}
 	}
+}
+
+func fromWebhook(log *zap.SugaredLogger, bot *tgbotapi.BotAPI) tgbotapi.UpdatesChannel {
+	log.Debug("setting up webhook...")
+	wh, err := tgbotapi.NewWebhook(os.Getenv("WEBHOOK") + bot.Token)
+	if err != nil {
+		log.Fatalf("cannot init webhook: %s", err)
+	}
+
+	_, err = bot.Request(wh)
+	if err != nil {
+		log.Fatalf("cannot init webhook: %s", err)
+	}
+	info, err := bot.GetWebhookInfo()
+	if err != nil {
+		log.Fatalf("cannot get webhook info: %s", err)
+	}
+	if info.LastErrorMessage != "" {
+		log.Errorf("webhook error: %s", info.LastErrorMessage)
+	}
+
+	return bot.ListenForWebhook("/" + bot.Token)
 }
 
 func fmtCreds(login, password string) string {

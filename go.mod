@@ -1,10 +1,11 @@
 module github.com/nikmy/locky
 
-go 1.20
+go 1.19
 
 require (
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/jmoiron/sqlx v1.3.5
+	github.com/lib/pq v1.2.0
 	github.com/sourcegraph/conc v0.3.0
 	go.uber.org/zap v1.24.0
 )

@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -15,6 +16,20 @@ func NewStorage(cfg Config) (*pgStorage, error) {
 	db, err := sqlx.Connect("postgres", source)
 	if err != nil {
 		return nil, fmt.Errorf("cannot connect database: %w", err)
+	}
+
+	initQuery, err := os.ReadFile("sql/init.sql")
+	if err != nil {
+		return nil, err
+	}
+	migrateQuery, err := os.ReadFile("sql/migrate.sql")
+	if err != nil {
+		return nil, err
+	}
+	setup := string(append(initQuery, migrateQuery...))
+	_, err = db.Exec(setup)
+	if err != nil {
+		return nil, err
 	}
 
 	return &pgStorage{
