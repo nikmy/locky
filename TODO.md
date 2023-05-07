@@ -1,3 +1,2 @@
-1. Token from BotFather
-2. WebHook
-3. Debug
+1. WebHook
+2. Debug

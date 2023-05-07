@@ -1,11 +1,10 @@
 version: '3.5'
 
 services:
-
   db:
     image: postgres
     environment:
-      POSTGRES_PASSWORD: test
+      POSTGRES_PASSWORD: postgres
 
   bot:
     build:
@@ -13,7 +12,7 @@ services:
       dockerfile: Dockerfile
     image: result/latest
     environment:
-      TOKEN: todo
+      TOKEN: "6256751542:AAFFCrPc6-5HVIhTPekb4LYH10qtgzPp3sY"
       DBNAME: locky_data
       HOST: localhost
       PORT: 5432
