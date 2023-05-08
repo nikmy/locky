@@ -5,26 +5,35 @@ services:
     image: postgres
     ports:
       - "5432:5432"
+    restart: on-failure
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=locky_data
       - POSTGRES_PORT=5432
-  bot:
+    networks:
+      - locky_network
+  app:
     depends_on:
       - db
     build:
-      context: app
+      context: .
       dockerfile: Dockerfile
     image: result/latest
     ports:
       - "80:80"
+    restart: on-failure
     environment:
-      TOKEN: "6256751542:AAFFCrPc6-5HVIhTPekb4LYH10qtgzPp3sY"
-      WEBHOOK: "<YOUR_WEBHOOK_URL>"
+      TOKEN: ""
+      WEBHOOK: ""
       DBNAME: locky_data
-      HOST: localhost
+      HOST: db
       PORT: 5432
       USER: postgres
       PASSWORD: postgres
       SSLMODE: disable
+    networks:
+      - locky_network
+
+networks:
+  locky_network:

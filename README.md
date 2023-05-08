@@ -1,12 +1,31 @@
-# Requirements
+# Locky password keeper
 
-- OS Linux (or specify `GOOS=linux`)
-- `go1.19`
-- `docker-compose`
+## Overview
 
-# Deploy
+- Supports following commands:
+  - `/get <service>`
+  - `/set <service> <login> <password>`
+  - `/del <service>`
+- Can support webhooks
+- Worker pool for requests
+- PostgreSQL as underlying storage
 
-1. Compile executable file: run `go build -o locky_bot` from `app/` directory
-2. Build app Docker image: run `docker-compose build` from root repo directory
-3. Run PostgreSQL: `docker-compose up -d db`
-4. Run app: `docker-compose up bot`
+## Deploy
+
+```shell
+# checkout sources
+git clone https://github.com/nikmy/locky.git
+
+# go to source dir
+cd locky
+
+# build and run the bot
+docker-compose up --build db app
+```
+
+## Environment
+
+In `docker-compose.yml`, service `app` you can find environment
+variables that control bot behaviour. The most important are:
+- `TOKEN`: telegram API token from [@BotFather](https://t.me/BotFather)
+- `WEBHOOK`: if set, is used for webhook instead of polling
