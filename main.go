@@ -10,8 +10,8 @@ import (
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 
-	"github.com/nikmy/locky/app/bot"
-	"github.com/nikmy/locky/app/db"
+	"github.com/nikmy/locky/internal/bot"
+	"github.com/nikmy/locky/internal/db"
 )
 
 func main() {
@@ -26,7 +26,8 @@ func main() {
 	log.Debug("storage has been successfully connected")
 
 	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
-	bot.Run(ctx, log, api, os.Getenv("TOKEN"), false)
+	<-bot.Run(ctx, log, api, os.Getenv("TOKEN"))
+	log.Info("Graceful shutdown")
 }
 
 func loadConfigFromEnv() db.Config {

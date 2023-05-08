@@ -12,10 +12,10 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 
-	"github.com/nikmy/locky/app/workerpool"
+	"github.com/nikmy/locky/internal/workerpool"
 )
 
-func Run(ctx context.Context, log *zap.SugaredLogger, api storage, token string, webhookEnabled bool) {
+func Run(ctx context.Context, log *zap.SugaredLogger, api storage, token string) <-chan struct{} {
 	log.Debug("launching bot...")
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
@@ -24,8 +24,8 @@ func Run(ctx context.Context, log *zap.SugaredLogger, api storage, token string,
 	log.Debug("successfully connected to telegram API")
 
 	var updates tgbotapi.UpdatesChannel
-	if webhookEnabled {
-		updates = fromWebhook(log, bot)
+	if webhook := os.Getenv("WEBHOOK"); webhook != "" {
+		updates = fromWebhook(log, bot, webhook)
 	} else {
 		_, _ = bot.Request(tgbotapi.WebhookConfig{})
 		u := tgbotapi.NewUpdate(0)
@@ -35,10 +35,12 @@ func Run(ctx context.Context, log *zap.SugaredLogger, api storage, token string,
 
 	log.Debug("listen for updates...")
 
-	workerpool.New[tgbotapi.Update](nWorkers).
+	return workerpool.New[tgbotapi.Update]().
+		WithMaxGoroutines(nWorkers).
 		WithContext(ctx).
 		WithHandler(runner(ctx, log, bot, api)).
-		Range(updates)
+		Range(updates).
+		Await()
 }
 
 func runner(ctx context.Context, log *zap.SugaredLogger, bot *tgbotapi.BotAPI, storage storage) func(update tgbotapi.Update) {
@@ -119,9 +121,9 @@ func runner(ctx context.Context, log *zap.SugaredLogger, bot *tgbotapi.BotAPI, s
 	}
 }
 
-func fromWebhook(log *zap.SugaredLogger, bot *tgbotapi.BotAPI) tgbotapi.UpdatesChannel {
+func fromWebhook(log *zap.SugaredLogger, bot *tgbotapi.BotAPI, webhook string) tgbotapi.UpdatesChannel {
 	log.Debug("setting up webhook...")
-	wh, err := tgbotapi.NewWebhook(os.Getenv("WEBHOOK") + bot.Token)
+	wh, err := tgbotapi.NewWebhook(webhook + bot.Token)
 	if err != nil {
 		log.Fatalf("cannot init webhook: %s", err)
 	}
